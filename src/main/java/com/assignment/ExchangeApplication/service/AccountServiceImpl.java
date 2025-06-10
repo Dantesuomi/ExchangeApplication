@@ -13,6 +13,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.security.Principal;
+
 @Service
 public class AccountServiceImpl implements AccountService {
     private static final Logger log = LoggerFactory.getLogger(ClientServiceImpl.class);
@@ -23,14 +26,14 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     private ClientRepository clientRepository;
 
-    public Account createAccountForCurrentClient(AccountCreateRequest request) {
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Client client = (Client) authentication.getPrincipal();
+    public Account createAccountForClient(Principal principal, AccountCreateRequest request) {
+        //TODO
+        Client client = new Client();
         try {
+            BigDecimal initialAccountBalance = new BigDecimal(0);
             Account account = new Account();
             account.setCurrency(request.getCurrency());
-            account.setBalance(request.getBalance());
+            account.setBalance(initialAccountBalance);
             account.setClient(client);
             log.info("Creating account for " + client.getName());
             return accountRepository.save(account);

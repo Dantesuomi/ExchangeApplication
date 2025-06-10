@@ -1,5 +1,6 @@
 package com.assignment.ExchangeApplication.service;
 
+import com.assignment.ExchangeApplication.enums.UserRole;
 import com.assignment.ExchangeApplication.exceptions.EmailExistsException;
 import com.assignment.ExchangeApplication.exceptions.UsernameExistsException;
 import com.assignment.ExchangeApplication.model.Account;
@@ -11,7 +12,9 @@ import com.assignment.ExchangeApplication.service.interfaces.ClientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -62,6 +65,7 @@ public class ClientServiceImpl implements ClientService, UserDetailsService {
             client.setPassword(passwordEncoder.encode(clientDto.getPassword()));
             client.setName(clientDto.getName());
             client.setUsername(clientDto.getUsername());
+            client.setRole(UserRole.USER);
 
             log.info("Registering new User");
             clientRepository.save(client);
@@ -103,12 +107,17 @@ public class ClientServiceImpl implements ClientService, UserDetailsService {
         return new org.springframework.security.core.userdetails.User(
                 client.get().getUsername(),
                 client.get().getPassword(),
-                true,
-                true,
-                true,
-                true,
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + client.get().getRole().toString()))
+                client.get().isEnabled(),
+                client.get().isAccountNonExpired(),
+                client.get().isAccountNonLocked(),
+                client.get().isAccountNonLocked(),
+                Collections.singletonList(new SimpleGrantedAuthority(client.get().getRole().toString()))
         );
+    }
+
+    @Override
+    public Optional<Client> getClientByUsername(String username) {
+        return clientRepository.findByUsername(username);
     }
 
 
@@ -125,4 +134,17 @@ public class ClientServiceImpl implements ClientService, UserDetailsService {
         Pattern regex = Pattern.compile(pattern);
         return regex.matcher(email).matches();
     }
+
+    @Override
+    public UUID getLoggedInClientUid() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth != null && auth.getPrincipal() instanceof Client) {
+            Client client = (Client) auth.getPrincipal();
+            return client.getId();
+        }
+
+        return null; // or throw custom exception
+    }
+
 }

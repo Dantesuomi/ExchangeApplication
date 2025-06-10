@@ -1,5 +1,6 @@
 package com.assignment.ExchangeApplication.model;
 
+import com.assignment.ExchangeApplication.enums.UserRole;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -10,7 +11,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -44,7 +44,7 @@ public class Client implements UserDetails{
     private List<GrantedAuthority> authorities;
 
     @JsonIgnore
-    private String role;
+    private UserRole role;
 
 
     @Override

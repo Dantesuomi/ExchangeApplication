@@ -13,7 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -36,20 +38,10 @@ public class ClientController {
         }
     }
 
-    @PostMapping("/{clientId}/accounts")
-    public ResponseEntity<Account> addAccount(@PathVariable UUID clientId,
-                                              @RequestBody Account account) {
-        Account createdAccount = clientService.addAccountToClient(clientId, account);
-        return new ResponseEntity<>(createdAccount, HttpStatus.CREATED);
+    @GetMapping("/")
+    public ResponseEntity<Optional<Client>> getClientInfo(Principal principal) {
+        String userName = principal.getName();
+        Optional<Client> client = clientService.getClientByUsername(userName);
+        return ResponseEntity.ok(client);
     }
-
-    @GetMapping("/{clientId}/accounts")
-    public ResponseEntity<List<Account>> getClientAccounts(@PathVariable UUID clientId) {
-        List<Account> accounts = clientService.getAccountsByClientId(clientId);
-        return ResponseEntity.ok(accounts);
-    }
-
-
-
-
 }

@@ -4,9 +4,11 @@ import com.assignment.ExchangeApplication.model.Account;
 import com.assignment.ExchangeApplication.model.dto.AccountCreateRequest;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
+
 @Service
 public interface AccountService {
 
-    Account createAccountForCurrentClient(AccountCreateRequest request);
+    Account createAccountForClient(Principal principal, AccountCreateRequest request);
 
 }

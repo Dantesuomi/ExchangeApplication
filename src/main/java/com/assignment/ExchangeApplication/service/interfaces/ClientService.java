@@ -3,9 +3,11 @@ package com.assignment.ExchangeApplication.service.interfaces;
 import com.assignment.ExchangeApplication.model.Account;
 import com.assignment.ExchangeApplication.model.Client;
 import com.assignment.ExchangeApplication.model.dto.ClientDto;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -24,4 +26,10 @@ public interface ClientService {
     Account addAccountToClient(UUID clientId, Account account);
 
     List<Account> getAccountsByClientId(UUID clientId);
+
+    UserDetails loadUserByUsername(String username);
+
+    Optional<Client> getClientByUsername(String username);
+
+    UUID getLoggedInClientUid();
 }

@@ -39,10 +39,10 @@ public class SecurityConfiguration {
                 .headers(headers -> headers.frameOptions().disable())
                 .authorizeHttpRequests(
                         authorize -> authorize
-                                .requestMatchers("/hello").authenticated()
                                 .requestMatchers(HttpMethod.POST, "/api/client/register").anonymous()
-
-
+                                .requestMatchers("/hello").authenticated()
+                                .requestMatchers(HttpMethod.GET,"/api/client/").authenticated()
+                                .requestMatchers(HttpMethod.POST,"/api/account/create").authenticated()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // no session
