@@ -10,6 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -28,6 +29,8 @@ public class Client implements UserDetails{
     @JsonIgnore
     private String password;
 
+    private String name;
+
     @Column(unique = true)
     private String username;
 
@@ -40,21 +43,9 @@ public class Client implements UserDetails{
 
     private List<GrantedAuthority> authorities;
 
-//    public User(User user) {
-//        id = user.getId();
-//        email = user.getEmail();
-//        password = user.getPassword();
-//        username = user.getUsername();
-//        dateOfBirth = user.getDateOfBirth();
-//        homePlanet = user.getHomePlanet();
-//        createdAt = user.getCreatedAt();
-//        role = user.getRole();
-//        authorities = Arrays.stream(user.getRole().split(","))
-//                .map(SimpleGrantedAuthority::new)
-//                .collect(Collectors.toList());
+    @JsonIgnore
+    private String role;
 
-
-//    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
