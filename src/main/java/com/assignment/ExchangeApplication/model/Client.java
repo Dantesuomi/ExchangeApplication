@@ -36,6 +36,7 @@ public class Client implements UserDetails{
 
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Account> accounts;
 
     @CreationTimestamp
@@ -46,6 +47,16 @@ public class Client implements UserDetails{
     @JsonIgnore
     private UserRole role;
 
+    public Client(UUID id, String email, String password, String name, String username, Date createdAt, List<GrantedAuthority> authorities, UserRole role) {
+        this.id = id;
+        this.email = email;
+        this.password = password;
+        this.name = name;
+        this.username = username;
+        this.createdAt = createdAt;
+        this.authorities = authorities;
+        this.role = role;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

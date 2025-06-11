@@ -1,11 +1,14 @@
 package com.assignment.ExchangeApplication.service;
 
+import com.assignment.ExchangeApplication.helpers.BankHelper;
 import com.assignment.ExchangeApplication.model.Account;
 import com.assignment.ExchangeApplication.model.Client;
 import com.assignment.ExchangeApplication.model.dto.AccountCreateRequest;
 import com.assignment.ExchangeApplication.repository.AccountRepository;
 import com.assignment.ExchangeApplication.repository.ClientRepository;
 import com.assignment.ExchangeApplication.service.interfaces.AccountService;
+import org.iban4j.CountryCode;
+import org.iban4j.Iban;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +18,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.security.Principal;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.UUID;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -28,13 +34,17 @@ public class AccountServiceImpl implements AccountService {
 
     public Account createAccountForClient(Principal principal, AccountCreateRequest request) {
         //TODO
-        Client client = new Client();
+        String username = principal.getName();
+        Client client = clientRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("Client not found for username: " + username));
         try {
             BigDecimal initialAccountBalance = new BigDecimal(0);
             Account account = new Account();
             account.setCurrency(request.getCurrency());
             account.setBalance(initialAccountBalance);
             account.setClient(client);
+            account.setIban(BankHelper.generateIban());
+
             log.info("Creating account for " + client.getName());
             return accountRepository.save(account);
         } catch (Exception e){
@@ -43,5 +53,35 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
+    @Override
+    public List<Account> getAccountsForLoggedInClient(Principal principal) {
+        String username = principal.getName();
 
+        Client client = clientRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("Client not found for username: " + username));
+
+        return client.getAccounts();
+    }
+
+    @Override
+    public List<Account> getAccountsByClientId(UUID clientId) {
+        Client client = clientRepository.findById(clientId)
+                // TODO Change to Not found exception
+                .orElseThrow(() -> new IllegalArgumentException("Client not found by UUID: " + clientId));
+        return client.getAccounts();
+    }
+
+    @Override
+    public Account getAccountByIban(String iban){
+        Account account = accountRepository.findByIban(iban);
+        if (account == null){
+            throw new NoSuchElementException("Account not Found");
+        }
+        return account;
+    }
+
+    @Override
+    public void updateAccount(Account account) {
+        accountRepository.save(account);
+    }
 }

@@ -1,11 +1,14 @@
 package com.assignment.ExchangeApplication.model;
 
+import com.assignment.ExchangeApplication.enums.CurrencyCode;
+import com.assignment.ExchangeApplication.enums.TransactionOperation;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -19,13 +22,31 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @NonNull
-    Long amount;
+    @NotNull
+    BigDecimal balance;
+
     private LocalDateTime timestamp;
+
     private String description;
 
     @ManyToOne
-    @JoinColumn(name = "account_id")
-    private Account account;
+    @JoinColumn(name = "source_account_id")
+    private Account sourceAccount;
+
+    @ManyToOne
+    @JoinColumn(name = "destination_account_id")
+    private Account destinationAccount;
+
+    private CurrencyCode sourceCurrencyCode;
+
+    private CurrencyCode destinationCurrencyCode;
+
+    private TransactionOperation transactionOperation;
+
+    @NotNull
+    BigDecimal sourceAmountDebited;
+    @NotNull
+    BigDecimal destinationAmountCredited;
+
 
 }

@@ -25,7 +25,7 @@ public interface ClientService {
 
     Account addAccountToClient(UUID clientId, Account account);
 
-    List<Account> getAccountsByClientId(UUID clientId);
+
 
     UserDetails loadUserByUsername(String username);
 

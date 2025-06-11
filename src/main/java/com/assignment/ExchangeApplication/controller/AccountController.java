@@ -1,16 +1,21 @@
 package com.assignment.ExchangeApplication.controller;
 
 import com.assignment.ExchangeApplication.model.Account;
+import com.assignment.ExchangeApplication.model.Client;
 import com.assignment.ExchangeApplication.model.dto.AccountCreateRequest;
+import com.assignment.ExchangeApplication.model.dto.AccountResponseDto;
 import com.assignment.ExchangeApplication.service.interfaces.AccountService;
 import com.assignment.ExchangeApplication.service.interfaces.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/account")
@@ -23,15 +28,23 @@ public class AccountController {
     private ClientService clientService;
 
     @PostMapping("/create")
-    public ResponseEntity<Account> createAccount(Principal principal, @RequestBody AccountCreateRequest request) {
-        UUID clientUUID = clientService.getLoggedInClientUid();
+    public ResponseEntity<AccountResponseDto> createAccount(Principal principal, @RequestBody AccountCreateRequest request) {
         Account account = accountService.createAccountForClient(principal, request);
-        return ResponseEntity.ok(account);
+        return ResponseEntity.ok(new AccountResponseDto(account));
     }
 
     @GetMapping("/{clientId}")
-    public ResponseEntity<List<Account>> getClientAccounts(@PathVariable UUID clientId) {
-        List<Account> accounts = clientService.getAccountsByClientId(clientId);
-        return ResponseEntity.ok(accounts);
+    public ResponseEntity<List<AccountResponseDto>> getAccountsById(Authentication authentication, @PathVariable UUID clientId) {
+        Client client = (Client) authentication.getPrincipal();
+        UUID authorizedClientId = client.getId();
+        if (!authorizedClientId.equals(clientId)){
+            throw new AccessDeniedException("You are not authorized to perform this action");
+        }
+        List<AccountResponseDto> responseDtos = accountService.getAccountsByClientId(clientId)
+                .stream()
+                .map(AccountResponseDto::new)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(responseDtos);
     }
 }

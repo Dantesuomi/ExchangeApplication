@@ -1,13 +1,13 @@
 package com.assignment.ExchangeApplication.enums;
 
-public enum TransactionStatus {
+public enum TransactionOperation {
 
-    ALLOWED("ALLOWED"),
-    PROHIBITED("PROHIBITED");
+    SEND("SEND"),
+    RECEIVE("RECEIVE");
 
     private final String name;
 
-    TransactionStatus(String name) {
+    TransactionOperation(String name) {
         this.name = name;
     }
 

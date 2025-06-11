@@ -75,20 +75,13 @@ public class ClientServiceImpl implements ClientService, UserDetailsService {
         }
         return client;
     }
-
+    //todo remove
     @Override
     public Account addAccountToClient(UUID clientId, Account account) {
         Client client = clientRepository.findById(clientId)
                 .orElseThrow(() -> new RuntimeException("Client not found"));
         account.setClient(client);
         return accountRepository.save(account);
-    }
-
-    @Override
-    public List<Account> getAccountsByClientId(UUID clientId) {
-        Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new RuntimeException("Client not found"));
-        return client.getAccounts();
     }
 
     @Override
@@ -104,14 +97,15 @@ public class ClientServiceImpl implements ClientService, UserDetailsService {
         if (client.isEmpty())
             throw new UsernameNotFoundException("Client not found");
 
-        return new org.springframework.security.core.userdetails.User(
-                client.get().getUsername(),
+        return new Client(
+                client.get().getId(),
+                client.get().getEmail(),
                 client.get().getPassword(),
-                client.get().isEnabled(),
-                client.get().isAccountNonExpired(),
-                client.get().isAccountNonLocked(),
-                client.get().isAccountNonLocked(),
-                Collections.singletonList(new SimpleGrantedAuthority(client.get().getRole().toString()))
+                client.get().getName(),
+                client.get().getUsername(),
+                client.get().getCreatedAt(),
+                Collections.singletonList(new SimpleGrantedAuthority(client.get().getRole().toString())),
+                client.get().getRole()
         );
     }
 
