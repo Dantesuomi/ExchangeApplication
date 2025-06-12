@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -20,10 +22,8 @@ public class Transaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     private UUID id;
-
-    @NotNull
-    BigDecimal balance;
 
     private LocalDateTime timestamp;
 
@@ -37,16 +37,18 @@ public class Transaction {
     @JoinColumn(name = "destination_account_id")
     private Account destinationAccount;
 
+    @Enumerated(EnumType.STRING)
     private CurrencyCode sourceCurrencyCode;
 
-    private CurrencyCode destinationCurrencyCode;
-
+    @Enumerated(EnumType.STRING)
     private TransactionOperation transactionOperation;
 
-    @NotNull
-    BigDecimal sourceAmountDebited;
-    @NotNull
-    BigDecimal destinationAmountCredited;
+    @Enumerated(EnumType.STRING)
+    private CurrencyCode destinationCurrencyCode;
 
+    @NotNull
+    private BigDecimal sourceAmountDebited;
+    @NotNull
+    private BigDecimal destinationAmountCredited;
 
 }

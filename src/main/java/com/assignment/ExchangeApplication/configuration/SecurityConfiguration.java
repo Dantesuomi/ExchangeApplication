@@ -46,6 +46,8 @@ public class SecurityConfiguration {
                                 .requestMatchers(HttpMethod.GET, "/api/account/{clientId}").authenticated()
                                 .requestMatchers(HttpMethod.POST, "/api/transaction/deposit").authenticated()
                                 .requestMatchers(HttpMethod.POST, "/api/transaction/withdraw").authenticated()
+                                .requestMatchers(HttpMethod.POST, "/api/transaction/transfer").authenticated()
+
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // no session

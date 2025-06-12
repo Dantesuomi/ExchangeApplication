@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -20,6 +22,7 @@ public class Client implements UserDetails{
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     private UUID id;
 
     @Column(unique = true)

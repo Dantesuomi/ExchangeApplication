@@ -1,5 +1,6 @@
 package com.assignment.ExchangeApplication.model.dto;
 
+import com.assignment.ExchangeApplication.enums.CurrencyCode;
 import com.assignment.ExchangeApplication.model.Account;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +14,7 @@ import java.util.UUID;
 public class AccountResponseDto {
 
     private UUID id;
-    private Currency currency;
+    private CurrencyCode currency;
     private BigDecimal balance;
     private UUID clientId;
     private String clientName;

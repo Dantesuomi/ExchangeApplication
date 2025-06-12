@@ -1,12 +1,14 @@
 package com.assignment.ExchangeApplication.model;
 
+import com.assignment.ExchangeApplication.enums.CurrencyCode;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
-import java.util.Currency;
 import java.util.UUID;
 
 @Data
@@ -16,8 +18,10 @@ import java.util.UUID;
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     private UUID id;
-    private Currency currency;
+    @Enumerated(EnumType.STRING)
+    private CurrencyCode currency;
     private BigDecimal balance;
 //
 //    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)

@@ -1,10 +1,13 @@
 package com.assignment.ExchangeApplication.controller;
 
+import com.assignment.ExchangeApplication.enums.TransferStatus;
 import com.assignment.ExchangeApplication.exceptions.NegativeAmountException;
 import com.assignment.ExchangeApplication.exceptions.PermissionDeniedException;
 import com.assignment.ExchangeApplication.model.ErrorResponse;
 import com.assignment.ExchangeApplication.model.dto.AccountResponseDto;
 import com.assignment.ExchangeApplication.model.dto.TransactionRequest;
+import com.assignment.ExchangeApplication.model.dto.TransferRequest;
+import com.assignment.ExchangeApplication.model.dto.TransferResult;
 import com.assignment.ExchangeApplication.service.interfaces.TransactionService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +46,16 @@ public class TransactionController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(HttpStatus.FORBIDDEN, e.getMessage()));
         } catch (NegativeAmountException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage()));
+        }
+    }
+
+    @PostMapping("/transfer")
+    public  ResponseEntity<TransferResult> transferFundsBetweenAccounts(Authentication authentication, @Valid @RequestBody TransferRequest transferRequest){
+        TransferResult transferResult = transactionService.transferBetweenAccounts(authentication, transferRequest);
+        if (transferResult.getTransferStatus().equals(TransferStatus.SUCCESSFUL)){
+            return ResponseEntity.ok(transferResult);
+        }else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(transferResult);
         }
     }
 }

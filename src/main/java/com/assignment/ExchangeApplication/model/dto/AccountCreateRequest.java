@@ -1,6 +1,7 @@
 package com.assignment.ExchangeApplication.model.dto;
 
 
+import com.assignment.ExchangeApplication.enums.CurrencyCode;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -13,5 +14,5 @@ import java.util.Currency;
 public class AccountCreateRequest {
     @NotNull
     @NotEmpty
-    private Currency currency;
+    private CurrencyCode currency;
 }
