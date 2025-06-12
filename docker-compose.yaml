@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   mysql:
-    image: mysql:8
+    image: mysql:9.3.0
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: ExchangeApplication
@@ -12,5 +12,11 @@ services:
       - mysql_data:/var/lib/mysql
     ports:
       - '3306:3306'
+    restart: unless-stopped
+  redis:
+    image: redis:8.0.2
+    ports:
+      - 6379:6379
+    restart: unless-stopped
 volumes:
   mysql_data:

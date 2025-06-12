@@ -23,9 +23,6 @@ public class Account {
     @Enumerated(EnumType.STRING)
     private CurrencyCode currency;
     private BigDecimal balance;
-//
-//    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
-//    private List<Transaction> transactions;
 
     @ManyToOne
     @JoinColumn(name = "client_id")

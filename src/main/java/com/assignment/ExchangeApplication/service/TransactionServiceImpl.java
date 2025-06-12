@@ -44,7 +44,7 @@ public class TransactionServiceImpl implements TransactionService {
     public AccountResponseDto depositAccount(Authentication authentication, TransactionRequest request) {
         Account account = accountService.getAccountByIban(request.getAccountIban());
         if (!doesAccountBelongsToRequester(authentication, account)){
-            throw new PermissionDeniedException("User not authorized to perform this operation");
+            throw new PermissionDeniedException(UNAUTHORIZED_ACCOUNT_ERROR);
         }
 
         BigDecimal amountToDeposit = request.getAmount();
@@ -61,7 +61,7 @@ public class TransactionServiceImpl implements TransactionService {
     public AccountResponseDto withdrawAccount(Authentication authentication, TransactionRequest request) {
         Account account = accountService.getAccountByIban(request.getAccountIban());
         if (!doesAccountBelongsToRequester(authentication, account)){
-            throw new PermissionDeniedException("User not authorized to perform this operation");
+            throw new PermissionDeniedException(UNAUTHORIZED_ACCOUNT_ERROR);
         }
         BigDecimal amountToWithdraw = request.getAmount();
         BigDecimal currentAccountBalance = account.getBalance();
