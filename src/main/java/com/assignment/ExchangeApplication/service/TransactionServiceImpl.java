@@ -3,11 +3,13 @@ package com.assignment.ExchangeApplication.service;
 import com.assignment.ExchangeApplication.enums.CurrencyCode;
 import com.assignment.ExchangeApplication.enums.TransactionOperation;
 import com.assignment.ExchangeApplication.enums.TransferStatus;
+import com.assignment.ExchangeApplication.enums.TransferType;
 import com.assignment.ExchangeApplication.exceptions.NegativeAmountException;
 import com.assignment.ExchangeApplication.exceptions.PermissionDeniedException;
 import com.assignment.ExchangeApplication.model.Account;
 import com.assignment.ExchangeApplication.model.Client;
 import com.assignment.ExchangeApplication.model.Transaction;
+import com.assignment.ExchangeApplication.model.dao.TransactionResponse;
 import com.assignment.ExchangeApplication.model.dto.AccountResponseDto;
 import com.assignment.ExchangeApplication.model.dto.TransactionRequest;
 import com.assignment.ExchangeApplication.model.dto.TransferRequest;
@@ -16,14 +18,14 @@ import com.assignment.ExchangeApplication.repository.TransactionRepository;
 import com.assignment.ExchangeApplication.service.interfaces.AccountService;
 import com.assignment.ExchangeApplication.service.interfaces.CurrencyExchangeService;
 import com.assignment.ExchangeApplication.service.interfaces.TransactionService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static com.assignment.ExchangeApplication.helpers.StatusMessages.*;
 
@@ -90,6 +92,34 @@ public class TransactionServiceImpl implements TransactionService {
 
         Transaction transaction = generateTransaction(sourceAccount, destinationAccount, transferRequest);
         return executeAccountTransfer(transaction);
+    }
+
+    @Override
+    public List<TransactionResponse> getTransactionsForAccount(Authentication authentication, UUID accountId) {
+        Optional<Account> optionalAccount = accountService.getAccountById(accountId);
+
+        Account account = optionalAccount.orElseThrow(() -> new EntityNotFoundException("Account not found"));
+
+        if (!doesAccountBelongsToRequester(authentication, account)){
+            throw new PermissionDeniedException(UNAUTHORIZED_ACCOUNT_ERROR);
+        }
+        return getTransactionResponses(accountId);
+    }
+
+    private List<TransactionResponse> getTransactionResponses(UUID accountId) {
+        List<TransactionResponse> transactionResponses = new ArrayList<>();
+        List<Transaction> transactions = transactionRepository.findBySourceOrDestinationAccount(accountId);
+        for (Transaction transaction : transactions){
+            TransactionResponse transactionResponse;
+            if(transaction.getSourceAccount().getId().equals(accountId)){
+                transactionResponse = new TransactionResponse(transaction, TransferType.SENT);
+            } else {
+                transactionResponse = new TransactionResponse(transaction, TransferType.RECEIVED);
+            }
+            transactionResponses.add(transactionResponse);
+        }
+        transactionResponses.sort(Comparator.comparing(TransactionResponse::getTimestamp).reversed());
+        return transactionResponses;
     }
 
     private Boolean doesAccountBelongsToRequester(Authentication authentication, Account account){

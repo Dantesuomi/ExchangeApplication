@@ -7,19 +7,16 @@ import com.assignment.ExchangeApplication.model.dto.AccountCreateRequest;
 import com.assignment.ExchangeApplication.repository.AccountRepository;
 import com.assignment.ExchangeApplication.repository.ClientRepository;
 import com.assignment.ExchangeApplication.service.interfaces.AccountService;
-import org.iban4j.CountryCode;
-import org.iban4j.Iban;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -61,6 +58,10 @@ public class AccountServiceImpl implements AccountService {
                 .orElseThrow(() -> new IllegalArgumentException("Client not found for username: " + username));
 
         return client.getAccounts();
+    }
+
+    public Optional<Account> getAccountById(UUID id){
+        return accountRepository.findById(id);
     }
 
     @Override

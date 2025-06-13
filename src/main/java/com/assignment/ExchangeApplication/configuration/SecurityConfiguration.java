@@ -47,6 +47,7 @@ public class SecurityConfiguration {
                                 .requestMatchers(HttpMethod.POST, "/api/transaction/deposit").authenticated()
                                 .requestMatchers(HttpMethod.POST, "/api/transaction/withdraw").authenticated()
                                 .requestMatchers(HttpMethod.POST, "/api/transaction/transfer").authenticated()
+                                .requestMatchers(HttpMethod.GET, "/api/transaction/{accountId}").authenticated()
 
                 )
                 .sessionManagement(session -> session

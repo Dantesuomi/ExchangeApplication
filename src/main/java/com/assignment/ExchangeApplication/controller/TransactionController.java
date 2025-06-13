@@ -4,6 +4,7 @@ import com.assignment.ExchangeApplication.enums.TransferStatus;
 import com.assignment.ExchangeApplication.exceptions.NegativeAmountException;
 import com.assignment.ExchangeApplication.exceptions.PermissionDeniedException;
 import com.assignment.ExchangeApplication.model.ErrorResponse;
+import com.assignment.ExchangeApplication.model.dao.TransactionResponse;
 import com.assignment.ExchangeApplication.model.dto.AccountResponseDto;
 import com.assignment.ExchangeApplication.model.dto.TransactionRequest;
 import com.assignment.ExchangeApplication.model.dto.TransferRequest;
@@ -15,10 +16,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("api/transaction")
@@ -57,5 +58,12 @@ public class TransactionController {
         }else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(transferResult);
         }
+    }
+
+    @GetMapping("/{accountId}")
+    public ResponseEntity<List<TransactionResponse>> getAccountsById(Authentication authentication, @PathVariable UUID accountId) {
+        List<TransactionResponse> transactions = transactionService.getTransactionsForAccount(authentication, accountId);
+
+        return ResponseEntity.ok(transactions);
     }
 }
