@@ -1,6 +1,5 @@
 package com.assignment.ExchangeApplication.configuration;
 
-import com.assignment.ExchangeApplication.repository.AccountRepository;
 import com.assignment.ExchangeApplication.repository.ClientRepository;
 import com.assignment.ExchangeApplication.service.ClientServiceImpl;
 import org.springframework.context.annotation.Bean;
@@ -28,9 +27,8 @@ public class SecurityConfiguration {
 
     @Bean
     public UserDetailsService userDetailsService(ClientRepository clientRepository,
-                                                 AccountRepository accountRepository,
                                                  PasswordEncoder passwordEncoder) {
-        return new ClientServiceImpl(clientRepository, accountRepository, passwordEncoder);
+        return new ClientServiceImpl(clientRepository, passwordEncoder);
     }
 
     @Bean
@@ -42,7 +40,6 @@ public class SecurityConfiguration {
                         authorize -> authorize
                                 .requestMatchers("/error").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/client/register").anonymous()
-                                .requestMatchers("/hello").authenticated()
                                 .requestMatchers(HttpMethod.GET,"/api/client/").authenticated()
                                 .requestMatchers(HttpMethod.POST,"/api/account/create").authenticated()
                                 .requestMatchers(HttpMethod.GET, "/api/account/all").authenticated()
@@ -64,10 +61,9 @@ public class SecurityConfiguration {
     @Bean
     public AuthenticationProvider authenticationProvider(
             ClientRepository clientRepository,
-            AccountRepository accountRepository,
             PasswordEncoder passwordEncoder
     ) {
-        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(userDetailsService(clientRepository, accountRepository, passwordEncoder));
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(userDetailsService(clientRepository, passwordEncoder));
         authenticationProvider.setPasswordEncoder(passwordEncoder());
         return authenticationProvider;
     }

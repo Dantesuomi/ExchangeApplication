@@ -59,17 +59,20 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     @Transactional
     public AccountResponseDto depositAccount(Authentication authentication, TransactionRequest request) {
+        log.info("Initiating deposit request for IBAN: {}", request.getAccountIban());
         Account account = accountService.getAccountByIban(request.getAccountIban());
         if (!doesAccountBelongsToRequester(authentication, account)){
+            log.warn("Unauthorized deposit attempt on account IBAN: {}",
+                    request.getAccountIban());
             throw new PermissionDeniedException(UNAUTHORIZED_ACCOUNT_ERROR);
         }
-
-        BigDecimal amountToDeposit = request.getAmount();
+                BigDecimal amountToDeposit = request.getAmount();
         BigDecimal currentAccountBalance = account.getBalance();
         BigDecimal newAccountBalance = currentAccountBalance.add(amountToDeposit);
 
         account.setBalance(newAccountBalance);
         accountService.updateAccount(account);
+        log.debug("Account balance updated for IBAN: {}", request.getAccountIban());
 
         Transaction transaction = new Transaction();
         transaction.setDestinationAccount(account);
@@ -80,14 +83,20 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setTimestamp(LocalDateTime.now(ZoneOffset.UTC));
         transactionRepository.save(transaction);
 
+        log.info("Transaction record created for deposit to IBAN: {}", request.getAccountIban());
+
         return new AccountResponseDto(account);
     }
 
     @Override
     @Transactional
     public AccountResponseDto withdrawAccount(Authentication authentication, TransactionRequest request) {
+        log.info("Initiating withdrawal request for IBAN: {}", request.getAccountIban());
+
         Account account = accountService.getAccountByIban(request.getAccountIban());
         if (!doesAccountBelongsToRequester(authentication, account)){
+            log.warn("Unauthorized withdrawal attempt on account IBAN: {}",
+                    request.getAccountIban());
             throw new PermissionDeniedException(UNAUTHORIZED_ACCOUNT_ERROR);
         }
         BigDecimal amountToWithdraw = request.getAmount();
@@ -98,6 +107,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
         account.setBalance(newAccountBalance);
         accountService.updateAccount(account);
+        log.debug("Account balance updated for withdrawal. IBAN: {}", request.getAccountIban());
 
         Transaction transaction = new Transaction();
         transaction.setSourceAccount(account);
@@ -107,6 +117,8 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setTransactionOperation(TransactionOperation.WITHDRAWAL);
         transaction.setTimestamp(LocalDateTime.now(ZoneOffset.UTC));
         transactionRepository.save(transaction);
+
+        log.info("Transaction record created for withdrawal from IBAN: {}", request.getAccountIban());
 
         return new AccountResponseDto(account);
     }
@@ -151,12 +163,20 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Page<Transaction> getTransactionsForAccount(Authentication authentication, UUID accountId, Pageable pageable) {
+        log.info("Getting transactions for account ID: {}", accountId);
+
         Optional<Account> optionalAccount = accountService.getAccountById(accountId);
-        Account account = optionalAccount.orElseThrow(() -> new EntityNotFoundException(ACCOUNT_NOT_FOUND_ERROR));
+        Account account = optionalAccount.orElseThrow(() -> {
+            log.warn("Account not found for ID: {}", accountId);
+            return new EntityNotFoundException(ACCOUNT_NOT_FOUND_ERROR);
+        });
+
         if (!doesAccountBelongsToRequester(authentication, account)){
+            log.warn("Unauthorized access attempt to transactions of account ID: {} ", accountId);
             throw new PermissionDeniedException(UNAUTHORIZED_ACCOUNT_ERROR);
         }
         Page<Transaction> transactions = transactionRepository.findBySourceOrDestinationAccount(accountId, pageable);
+        log.info("Retrieving transactions for account ID: {}", accountId);
         transactions.getContent().forEach(transaction -> {
             if (transaction.getSourceAccount() != null && transaction.getSourceAccount().getId().equals(accountId)) {
                 transaction.setTransferType(TransferType.SENT);
@@ -164,6 +184,7 @@ public class TransactionServiceImpl implements TransactionService {
                 transaction.setTransferType(TransferType.RECEIVED);
             }
         });
+
         return transactions;
     }
 
@@ -184,16 +205,23 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     private Transaction generateTransaction(Account sourceAccount, Account destinationAccount, TransferRequest transferRequest) {
+
+        log.info("Generating transaction from source IBAN: {} to destination IBAN: {} ", sourceAccount.getIban(), destinationAccount.getIban());
+
         Transaction transaction = new Transaction();
 
         BigDecimal amountToTransferInSourceCurrency;
         if (doesCurrencyMatchesAccount(sourceAccount, transferRequest.getDestinationCurrency())) {
+            log.debug("Currency matches source account currency ({}). No conversion needed.", sourceAccount.getCurrency());
             amountToTransferInSourceCurrency = transferRequest.getAmount();
         } else {
+            log.debug("Currency mismatch detected. Converting from {} to {}.",
+                     sourceAccount.getCurrency(), transferRequest.getDestinationCurrency());
             Map<CurrencyCode, BigDecimal> exchangeRates = currencyExchangeService.getExchangeRates(transferRequest.getDestinationCurrency());
             CurrencyCode sourceAccountCurrencyCode = sourceAccount.getCurrency();
             BigDecimal sourceCurrencyExchangeRate = exchangeRates.get(sourceAccountCurrencyCode);
             amountToTransferInSourceCurrency = transferRequest.getAmount().multiply(sourceCurrencyExchangeRate);
+            log.debug("Converted amount to destination currency ({}): ", transferRequest.getDestinationCurrency());
         }
 
         transaction.setDescription(transferRequest.getDescription());
@@ -204,6 +232,9 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setSourceAmountDebited(amountToTransferInSourceCurrency);
         transaction.setDestinationAmountCredited(transferRequest.getAmount());
         transaction.setTransactionOperation(TransactionOperation.TRANSFER);
+
+        log.info("Transaction generated");
+
         return transaction;
     }
 
