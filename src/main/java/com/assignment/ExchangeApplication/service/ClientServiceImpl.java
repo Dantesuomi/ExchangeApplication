@@ -11,7 +11,6 @@ import com.assignment.ExchangeApplication.repository.ClientRepository;
 import com.assignment.ExchangeApplication.service.interfaces.ClientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,7 +21,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -31,14 +29,20 @@ import java.util.regex.Pattern;
 public class ClientServiceImpl implements ClientService, UserDetailsService {
 
     private static final Logger log = LoggerFactory.getLogger(ClientServiceImpl.class);
-    @Autowired
-    private ClientRepository clientRepository;
 
-    @Autowired
-    private AccountRepository accountRepository;
+    private final ClientRepository clientRepository;
+    private final AccountRepository accountRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+
+    public ClientServiceImpl(ClientRepository clientRepository,
+                              AccountRepository accountRepository,
+                              PasswordEncoder passwordEncoder
+    ) {
+        this.accountRepository = accountRepository;
+        this.clientRepository = clientRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
 
 

@@ -9,7 +9,6 @@ import com.assignment.ExchangeApplication.repository.ClientRepository;
 import com.assignment.ExchangeApplication.service.interfaces.AccountService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -19,18 +18,24 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.assignment.ExchangeApplication.helpers.StatusMessages.ACCOUNT_NOT_FOUND_ERROR;
+
 @Service
 public class AccountServiceImpl implements AccountService {
-    private static final Logger log = LoggerFactory.getLogger(ClientServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(AccountServiceImpl.class);
 
-    @Autowired
-    private AccountRepository accountRepository;
+    private final AccountRepository accountRepository;
+    private final ClientRepository clientRepository;
 
-    @Autowired
-    private ClientRepository clientRepository;
+    public AccountServiceImpl(AccountRepository accountRepository,
+                              ClientRepository clientRepository
+    ) {
+        this.accountRepository = accountRepository;
+        this.clientRepository = clientRepository;
+    }
 
     public Account createAccountForClient(Principal principal, AccountCreateRequest request) {
-        //TODO
+        //TODO find by uuid
         String username = principal.getName();
         Client client = clientRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("Client not found for username: " + username));
@@ -76,7 +81,7 @@ public class AccountServiceImpl implements AccountService {
     public Account getAccountByIban(String iban){
         Account account = accountRepository.findByIban(iban);
         if (account == null){
-            throw new NoSuchElementException("Account not Found");
+            throw new NoSuchElementException(ACCOUNT_NOT_FOUND_ERROR);
         }
         return account;
     }

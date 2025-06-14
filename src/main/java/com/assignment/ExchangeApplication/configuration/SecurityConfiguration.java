@@ -1,5 +1,7 @@
 package com.assignment.ExchangeApplication.configuration;
 
+import com.assignment.ExchangeApplication.repository.AccountRepository;
+import com.assignment.ExchangeApplication.repository.ClientRepository;
 import com.assignment.ExchangeApplication.service.ClientServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,8 +27,10 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfiguration {
 
     @Bean
-    public UserDetailsService userDetailsService() {
-        return new ClientServiceImpl();
+    public UserDetailsService userDetailsService(ClientRepository clientRepository,
+                                                 AccountRepository accountRepository,
+                                                 PasswordEncoder passwordEncoder) {
+        return new ClientServiceImpl(clientRepository, accountRepository, passwordEncoder);
     }
 
     @Bean
@@ -34,7 +38,6 @@ public class SecurityConfiguration {
         http
                 .httpBasic(Customizer.withDefaults())
                 .csrf(CsrfConfigurer::disable)
-                .headers(headers -> headers.frameOptions().disable())
                 .authorizeHttpRequests(
                         authorize -> authorize
                                 .requestMatchers("/error").permitAll()
@@ -59,9 +62,12 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(userDetailsService());
+    public AuthenticationProvider authenticationProvider(
+            ClientRepository clientRepository,
+            AccountRepository accountRepository,
+            PasswordEncoder passwordEncoder
+    ) {
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(userDetailsService(clientRepository, accountRepository, passwordEncoder));
         authenticationProvider.setPasswordEncoder(passwordEncoder());
         return authenticationProvider;
     }

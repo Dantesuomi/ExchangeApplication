@@ -5,8 +5,7 @@ import com.assignment.ExchangeApplication.model.Client;
 import com.assignment.ExchangeApplication.model.dto.AccountCreateRequest;
 import com.assignment.ExchangeApplication.model.dto.AccountResponseDto;
 import com.assignment.ExchangeApplication.service.interfaces.AccountService;
-import com.assignment.ExchangeApplication.service.interfaces.ClientService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
@@ -21,16 +20,16 @@ import java.util.stream.Collectors;
 @RequestMapping("api/account")
 public class AccountController {
 
-    @Autowired
-    private AccountService accountService;
+    private final AccountService accountService;
 
-    @Autowired
-    private ClientService clientService;
+    public AccountController(AccountService accountService) {
+        this.accountService = accountService;
+    }
 
     @PostMapping("/create")
     public ResponseEntity<AccountResponseDto> createAccount(Principal principal, @RequestBody AccountCreateRequest request) {
         Account account = accountService.createAccountForClient(principal, request);
-        return ResponseEntity.ok(new AccountResponseDto(account));
+        return ResponseEntity.status(HttpStatus.OK).body(new AccountResponseDto(account));
     }
 
     @GetMapping("/{clientId}")
@@ -45,6 +44,6 @@ public class AccountController {
                 .map(AccountResponseDto::new)
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(responseDtos);
+        return ResponseEntity.status(HttpStatus.OK).body(responseDtos);
     }
 }

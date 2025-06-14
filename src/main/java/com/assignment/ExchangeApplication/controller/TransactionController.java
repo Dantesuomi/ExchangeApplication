@@ -2,6 +2,7 @@ package com.assignment.ExchangeApplication.controller;
 
 import com.assignment.ExchangeApplication.enums.TransferStatus;
 import com.assignment.ExchangeApplication.exceptions.CurrencyExchangeException;
+import com.assignment.ExchangeApplication.exceptions.FailedAccountUpdateException;
 import com.assignment.ExchangeApplication.exceptions.NegativeAmountException;
 import com.assignment.ExchangeApplication.exceptions.PermissionDeniedException;
 import com.assignment.ExchangeApplication.model.ErrorResponse;
@@ -12,7 +13,6 @@ import com.assignment.ExchangeApplication.model.dto.TransferRequest;
 import com.assignment.ExchangeApplication.model.dto.TransferResult;
 import com.assignment.ExchangeApplication.service.interfaces.TransactionService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,13 +25,18 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 import static com.assignment.ExchangeApplication.helpers.StatusMessages.RETRIEVE_EXCHANGE_RATE_ERROR;
+import static com.assignment.ExchangeApplication.helpers.StatusMessages.TRANSFER_ERROR;
 
 @RestController
 @RequestMapping("api/transaction")
 public class TransactionController {
 
-    @Autowired
-    private TransactionService transactionService;
+    private final TransactionService transactionService;
+
+
+    public TransactionController(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
 
     @PostMapping("/deposit")
     public ResponseEntity<AccountResponseDto> depositToAccount(Authentication authentication, @Valid @RequestBody TransactionRequest request) {
@@ -68,6 +73,9 @@ public class TransactionController {
         }
         catch (CurrencyExchangeException e) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new TransferResult(TransferStatus.FAILED, RETRIEVE_EXCHANGE_RATE_ERROR));
+        }
+        catch (FailedAccountUpdateException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new TransferResult(TransferStatus.FAILED, TRANSFER_ERROR));
         }
     }
 

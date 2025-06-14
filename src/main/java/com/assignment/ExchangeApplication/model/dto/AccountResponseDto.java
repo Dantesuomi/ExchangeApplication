@@ -2,12 +2,9 @@ package com.assignment.ExchangeApplication.model.dto;
 
 import com.assignment.ExchangeApplication.enums.CurrencyCode;
 import com.assignment.ExchangeApplication.model.Account;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.Currency;
 import java.util.UUID;
 
 @Data
