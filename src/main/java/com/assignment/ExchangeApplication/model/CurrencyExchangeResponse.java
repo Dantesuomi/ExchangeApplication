@@ -9,8 +9,11 @@ import java.util.Map;
 
 @Data
 public class CurrencyExchangeResponse {
+    @JsonProperty("result")
     private String result;
+    @JsonProperty("provider")
     private String provider;
+    @JsonProperty("documentation")
     private String documentation;
     @JsonProperty("terms_of_use")
     private String termsOfUse;

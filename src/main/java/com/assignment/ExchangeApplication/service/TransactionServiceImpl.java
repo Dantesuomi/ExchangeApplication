@@ -9,7 +9,6 @@ import com.assignment.ExchangeApplication.exceptions.PermissionDeniedException;
 import com.assignment.ExchangeApplication.model.Account;
 import com.assignment.ExchangeApplication.model.Client;
 import com.assignment.ExchangeApplication.model.Transaction;
-import com.assignment.ExchangeApplication.model.dao.TransactionResponse;
 import com.assignment.ExchangeApplication.model.dto.AccountResponseDto;
 import com.assignment.ExchangeApplication.model.dto.TransactionRequest;
 import com.assignment.ExchangeApplication.model.dto.TransferRequest;
@@ -19,13 +18,17 @@ import com.assignment.ExchangeApplication.service.interfaces.AccountService;
 import com.assignment.ExchangeApplication.service.interfaces.CurrencyExchangeService;
 import com.assignment.ExchangeApplication.service.interfaces.TransactionService;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 import static com.assignment.ExchangeApplication.helpers.StatusMessages.*;
 
@@ -36,7 +39,10 @@ public class TransactionServiceImpl implements TransactionService {
     private final CurrencyExchangeService currencyExchangeService;
     private final TransactionRepository transactionRepository;
 
-    public TransactionServiceImpl(AccountService accountService, CurrencyExchangeService currencyExchangeService, TransactionRepository transactionRepository) {
+    public TransactionServiceImpl(AccountService accountService,
+                                  CurrencyExchangeService currencyExchangeService,
+                                  TransactionRepository transactionRepository
+    ) {
         this.accountService = accountService;
         this.currencyExchangeService = currencyExchangeService;
         this.transactionRepository = transactionRepository;
@@ -68,9 +74,8 @@ public class TransactionServiceImpl implements TransactionService {
         BigDecimal amountToWithdraw = request.getAmount();
         BigDecimal currentAccountBalance = account.getBalance();
         BigDecimal newAccountBalance = currentAccountBalance.subtract(amountToWithdraw);
-        //todo replace with currentAccountBalance.compareTo(amountToTransfer) < 0
-        if(newAccountBalance.compareTo(BigDecimal.ZERO) < 0) {
-            throw new NegativeAmountException("Balance cannot be less than zero");
+        if(newAccountBalance.compareTo(amountToWithdraw) < 0) {
+            throw new NegativeAmountException(INSUFFICIENT_BALANCE_ERROR);
         }
         account.setBalance(newAccountBalance);
         accountService.updateAccount(account);
@@ -95,31 +100,21 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<TransactionResponse> getTransactionsForAccount(Authentication authentication, UUID accountId) {
+    public Page<Transaction> getTransactionsForAccount(Authentication authentication, UUID accountId, Pageable pageable) {
         Optional<Account> optionalAccount = accountService.getAccountById(accountId);
-
-        Account account = optionalAccount.orElseThrow(() -> new EntityNotFoundException("Account not found"));
-
+        Account account = optionalAccount.orElseThrow(() -> new EntityNotFoundException(ACCOUNT_NOT_FOUND_ERROR));
         if (!doesAccountBelongsToRequester(authentication, account)){
             throw new PermissionDeniedException(UNAUTHORIZED_ACCOUNT_ERROR);
         }
-        return getTransactionResponses(accountId);
-    }
-
-    private List<TransactionResponse> getTransactionResponses(UUID accountId) {
-        List<TransactionResponse> transactionResponses = new ArrayList<>();
-        List<Transaction> transactions = transactionRepository.findBySourceOrDestinationAccount(accountId);
-        for (Transaction transaction : transactions){
-            TransactionResponse transactionResponse;
-            if(transaction.getSourceAccount().getId().equals(accountId)){
-                transactionResponse = new TransactionResponse(transaction, TransferType.SENT);
+        Page<Transaction> transactions = transactionRepository.findBySourceOrDestinationAccount(accountId, pageable);
+        transactions.getContent().forEach(transaction -> {
+            if (transaction.getSourceAccount().getId().equals(accountId)) {
+                transaction.setTransferType(TransferType.SENT);
             } else {
-                transactionResponse = new TransactionResponse(transaction, TransferType.RECEIVED);
+                transaction.setTransferType(TransferType.RECEIVED);
             }
-            transactionResponses.add(transactionResponse);
-        }
-        transactionResponses.sort(Comparator.comparing(TransactionResponse::getTimestamp).reversed());
-        return transactionResponses;
+        });
+        return transactions;
     }
 
     private Boolean doesAccountBelongsToRequester(Authentication authentication, Account account){
