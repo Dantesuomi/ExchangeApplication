@@ -7,7 +7,6 @@ import com.assignment.ExchangeApplication.model.dto.AccountCreateRequest;
 import com.assignment.ExchangeApplication.repository.AccountRepository;
 import com.assignment.ExchangeApplication.repository.ClientRepository;
 import com.assignment.ExchangeApplication.service.AccountServiceImpl;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
