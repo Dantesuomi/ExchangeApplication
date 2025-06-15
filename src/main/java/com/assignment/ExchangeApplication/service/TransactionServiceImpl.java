@@ -60,7 +60,15 @@ public class TransactionServiceImpl implements TransactionService {
     @Transactional
     public AccountResponseDto depositAccount(Authentication authentication, TransactionRequest request) {
         log.info("Initiating deposit request for IBAN: {}", request.getAccountIban());
-        Account account = accountService.getAccountByIban(request.getAccountIban());
+        Account account;
+        try {
+            account = accountService.getAccountByIban(request.getAccountIban());
+        }
+        catch (NoSuchElementException e) {
+            log.warn("Account not found for IBAN: {}", request.getAccountIban());
+            throw new EntityNotFoundException(ACCOUNT_NOT_FOUND_ERROR);
+        }
+
         if (!doesAccountBelongsToRequester(authentication, account)){
             log.warn("Unauthorized deposit attempt on account IBAN: {}",
                     request.getAccountIban());
@@ -93,7 +101,15 @@ public class TransactionServiceImpl implements TransactionService {
     public AccountResponseDto withdrawAccount(Authentication authentication, TransactionRequest request) {
         log.info("Initiating withdrawal request for IBAN: {}", request.getAccountIban());
 
-        Account account = accountService.getAccountByIban(request.getAccountIban());
+        Account account;
+        try {
+            account = accountService.getAccountByIban(request.getAccountIban());
+        }
+        catch (NoSuchElementException e) {
+            log.warn("Account not found for IBAN: {}", request.getAccountIban());
+            throw new EntityNotFoundException(ACCOUNT_NOT_FOUND_ERROR);
+        }
+
         if (!doesAccountBelongsToRequester(authentication, account)){
             log.warn("Unauthorized withdrawal attempt on account IBAN: {}",
                     request.getAccountIban());
@@ -162,7 +178,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public Page<Transaction>    getTransactionsForAccount(Authentication authentication, UUID accountId, Pageable pageable) {
+    public Page<Transaction> getTransactionsForAccount(Authentication authentication, UUID accountId, Pageable pageable) {
         log.info("Getting transactions for account ID: {}", accountId);
 
         Optional<Account> optionalAccount = accountService.getAccountById(accountId);

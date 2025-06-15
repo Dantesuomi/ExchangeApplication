@@ -10,7 +10,9 @@ MySQL and Redis are integrated using Docker Compose, allowing for easy setup and
 To run the application ```mysql``` and ```redis``` are required. You can use the provided `docker-compose.yaml` file to start these services which are already preconfigured.  
 
 To build run the application, use the following command:  
-```docker compose up --profile application -d```
+```
+docker compose --profile application up -d
+```
 
 Alternatively you can build the app with Maven and run with Java  
 Compose to start the application dependencies

@@ -12,6 +12,7 @@ import com.assignment.ExchangeApplication.model.dto.TransactionRequest;
 import com.assignment.ExchangeApplication.model.dto.TransferRequest;
 import com.assignment.ExchangeApplication.model.dto.TransferResult;
 import com.assignment.ExchangeApplication.service.interfaces.TransactionService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +52,9 @@ public class TransactionController {
         } catch (PermissionDeniedException e) {
             log.warn("Permission denied: client tried to deposit funds to an unauthorized account {}", request.getAccountIban());
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        } catch (EntityNotFoundException e) {
+            log.warn("Account not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
 
@@ -66,6 +70,9 @@ public class TransactionController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(HttpStatus.FORBIDDEN, e.getMessage()));
         } catch (NegativeAmountException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage()));
+        } catch (EntityNotFoundException e) {
+            log.warn("Account not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
 
@@ -96,12 +103,18 @@ public class TransactionController {
     @GetMapping("/{accountId}")
     public ResponseEntity<Page<Transaction>> getTransactionsById(Authentication authentication, @PathVariable UUID accountId, @RequestParam(defaultValue = "10") int limit,
                                                                  @RequestParam(defaultValue = "0") int offset) {
-
+        Page<Transaction> page;
         log.info("Getting transactions for account {} ", accountId);
-
-        Pageable pageable = PageRequest.of(offset, limit, Sort.by("timestamp").descending());
-        Page<Transaction> page = transactionService.getTransactionsForAccount(authentication, accountId, pageable);
-
+        try {
+            Pageable pageable = PageRequest.of(offset, limit, Sort.by("timestamp").descending());
+            page = transactionService.getTransactionsForAccount(authentication, accountId, pageable);
+        } catch (EntityNotFoundException e) {
+            log.warn("Account not found for ID {}", accountId);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (PermissionDeniedException e) {
+            log.warn("Unauthorized access attempt");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
         log.info("Got transactions for account {}", accountId);
         return ResponseEntity.status(HttpStatus.OK).body(page);
     }
