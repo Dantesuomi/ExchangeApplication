@@ -162,7 +162,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public Page<Transaction> getTransactionsForAccount(Authentication authentication, UUID accountId, Pageable pageable) {
+    public Page<Transaction>    getTransactionsForAccount(Authentication authentication, UUID accountId, Pageable pageable) {
         log.info("Getting transactions for account ID: {}", accountId);
 
         Optional<Account> optionalAccount = accountService.getAccountById(accountId);

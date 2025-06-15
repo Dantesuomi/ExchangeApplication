@@ -17,6 +17,8 @@ services:
     depends_on:
       - mysql
       - redis
+    profiles:
+      - application
     restart: unless-stopped
 
   mysql:

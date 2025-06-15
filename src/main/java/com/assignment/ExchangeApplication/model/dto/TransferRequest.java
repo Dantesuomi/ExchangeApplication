@@ -3,6 +3,7 @@ package com.assignment.ExchangeApplication.model.dto;
 import com.assignment.ExchangeApplication.enums.CurrencyCode;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -21,6 +22,8 @@ public class TransferRequest {
     @DecimalMin(value = "0.01", message = "Transfer amount must be greater than zero")
     private BigDecimal amount; //in destination currency
 
+    @NotNull
+    @NotEmpty
     private String description;
 
     private CurrencyCode destinationCurrency;

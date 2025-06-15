@@ -42,7 +42,6 @@ public class SecurityConfiguration {
                                 .requestMatchers(HttpMethod.POST, "/api/client/register").anonymous()
                                 .requestMatchers(HttpMethod.GET,"/api/client/").authenticated()
                                 .requestMatchers(HttpMethod.POST,"/api/account/create").authenticated()
-                                .requestMatchers(HttpMethod.GET, "/api/account/all").authenticated()
                                 .requestMatchers(HttpMethod.GET, "/api/account/{clientId}").authenticated()
                                 .requestMatchers(HttpMethod.POST, "/api/transaction/deposit").authenticated()
                                 .requestMatchers(HttpMethod.POST, "/api/transaction/withdraw").authenticated()
