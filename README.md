@@ -4,7 +4,10 @@ It supports basic CRUD operations for exchange rates and integrates with MySQL f
 MySQL and Redis are integrated using Docker Compose, allowing for easy setup and deployment of the application.
 
 ## Cloning the Application
-```git clone https://github.com/Dantesuomi/ExchangeApplication.git```
+```
+git clone https://github.com/Dantesuomi/ExchangeApplication.git
+cd ExchangeApplication
+```
 
 ## Running the Application
 To run the application ```mysql``` and ```redis``` are required. You can use the provided `docker-compose.yaml` file to start these services which are already preconfigured.  
@@ -14,14 +17,19 @@ To build run the application, use the following command:
 docker compose --profile application up -d
 ```
 
-Alternatively you can build the app with Maven and run with Java  
+Alternatively you can build the app with Maven and run with Java.  
+Java OpenJDK (or other Java distribution) version 21 and maven must be present on system.  
 Compose to start the application dependencies
 ```
 docker compose up -d 
 mvn clean install
 java -jar target/ExchangeApplication-0.0.1-SNAPSHOT.jar 
 ```
-
+## Testing
+To execute the unit tests run
+```
+mvn test
+```
 ## Application usage
 
 __All operations require authentication__, except for client registration.  
