@@ -20,8 +20,7 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import static com.assignment.ExchangeApplication.helpers.StatusMessages.EMAIL_IN_USER_ERROR;
-import static com.assignment.ExchangeApplication.helpers.StatusMessages.USERNAME_IN_USE_ERROR;
+import static com.assignment.ExchangeApplication.helpers.StatusMessages.*;
 
 @Service
 public class ClientServiceImpl implements ClientService, UserDetailsService {
@@ -48,12 +47,12 @@ public class ClientServiceImpl implements ClientService, UserDetailsService {
             throw new IllegalArgumentException("Incorrect email input " + clientDto.getEmail());
         } else if (!isValidPassword(clientDto.getPassword())) {
             log.warn("Password must include number, upper and lower case character and min length of 8");
-            throw new IllegalArgumentException("Password must include number, upper and lower case character and min length of 8");
+            throw new IllegalArgumentException(PASSWORD_POLICY_ERROR);
         }
 
         if (clientRepository.existsByEmail(clientDto.getEmail())) {
             log.warn("Failed to register client, email is in use: {}", clientDto.getEmail());
-            throw new EmailExistsException(EMAIL_IN_USER_ERROR);
+            throw new EmailExistsException(EMAIL_IN_USE_ERROR);
         } else if (clientRepository.existsByUsername(clientDto.getUsername())) {
             log.warn("Failed to register client, username is in use: {}", clientDto.getUsername());
             throw new UsernameExistsException(USERNAME_IN_USE_ERROR);

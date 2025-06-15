@@ -14,7 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import static com.assignment.ExchangeApplication.helpers.StatusMessages.EMAIL_IN_USER_ERROR;
+import static com.assignment.ExchangeApplication.helpers.StatusMessages.EMAIL_IN_USE_ERROR;
 import static com.assignment.ExchangeApplication.helpers.StatusMessages.USERNAME_IN_USE_ERROR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -63,7 +63,7 @@ public class ClientServiceTests {
         when(clientRepositoryMock.existsByEmail(clientDto.getEmail())).thenReturn(true);
 
         EmailExistsException thrown = assertThrows(EmailExistsException.class, () -> clientService.registerClient(clientDto));
-        assertEquals(EMAIL_IN_USER_ERROR, thrown.getMessage());
+        assertEquals(EMAIL_IN_USE_ERROR, thrown.getMessage());
         verify(clientRepositoryMock, never()).save(any());
     }
 

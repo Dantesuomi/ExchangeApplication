@@ -14,6 +14,7 @@ public class StatusMessages {
     public static final String IDENTICAL_SOURCE_AND_DESTINATION_ACCOUNT_ERROR = "Source and destination account are identical";
     public static final String TRANSFER_ERROR = "Failed to perform transfer, transaction has been rolled back";
     public static final String CREATE_ACCOUNT_ERROR = "Failed to create account";
-    public static final String EMAIL_IN_USER_ERROR = "Email is in use";
+    public static final String EMAIL_IN_USE_ERROR = "Email is in use";
     public static final String USERNAME_IN_USE_ERROR = "Username is in use";
+    public static final String PASSWORD_POLICY_ERROR = "Password must include number, upper and lower case character and min length of 8";
 }
