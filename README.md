@@ -1,5 +1,5 @@
 # Exchange Application
-This application war written in Java 21 using Spring Boot and provides a RESTful API for managing currency exchange rates. 
+This application is written in Java 21 using Spring Boot and provides a RESTful API for managing currency exchange rates. 
 It supports basic CRUD operations for exchange rates and integrates with MySQL for data storage and Redis for caching and resilience.
 MySQL and Redis are integrated using Docker Compose, allowing for easy setup and deployment of the application.
 
