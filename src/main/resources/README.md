@@ -2,7 +2,14 @@
 
 ## Running the Application
 To run the application ```mysql``` and ```redis``` are required. You can use the provided `docker-compose.yaml` file to start these services which are already preconfigured.  
-To run the application, you can use the following command:  
+
+To build run the application, use the following command:  
 ```docker compose up -d```
 
-This will build and start the application along with its dependencies defined in the `docker-compose.yaml` file. 
+Alternatively you can build the app with Maven and run with Java  
+Compose to start the application dependencies
+```
+docker compose up -d
+mvn clean install
+java -jar target/ExchangeApplication-0.0.1-SNAPSHOT.jar --server.port=8081
+```
