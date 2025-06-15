@@ -12,8 +12,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/ExchangeApplication?serverTimezone=UTC&createDatabaseIfNotExist=true
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
-      SPRING_CACHE_REDIS_HOST: redis
-      SPRING_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
     depends_on:
       - mysql
       - redis
@@ -34,7 +34,7 @@ services:
   redis:
     image: redis:8.0.2
     ports:
-      - 6379:6379
+      - '6379:6379'
     restart: unless-stopped
 volumes:
   mysql_data:

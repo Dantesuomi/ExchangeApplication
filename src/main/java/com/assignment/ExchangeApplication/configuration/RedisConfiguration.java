@@ -1,5 +1,6 @@
 package com.assignment.ExchangeApplication.configuration;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,13 +14,17 @@ import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer
 @Configuration
 public class RedisConfiguration {
 
+    @Value("${spring.data.redis.host}")
+    private String hostName;
+
+    @Value("${spring.data.redis.port}")
+    private int port;
 
     @Bean
     public LettuceConnectionFactory connectionFactory(){
-        RedisProperties properties = new RedisProperties();
         RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
-        configuration.setHostName(properties.getHost());
-        configuration.setPort(properties.getPort());
+        configuration.setHostName(hostName);
+        configuration.setPort(port);
         return new LettuceConnectionFactory(configuration);
     }
 
