@@ -51,33 +51,3 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
         }
     }
 }
-
-
-
-
-//    private final RestClient restClient;
-//    private final Logger log = LoggerFactory.getLogger(CurrencyExchangeServiceImpl.class);
-//    public CurrencyExchangeServiceImpl(RestClient.Builder restClientBuilder) {
-//        this.restClient = restClientBuilder.baseUrl("https://open.er-api.com").build();
-//    }
-//
-//    @Override
-//    @Retryable(maxAttempts = 5, backoff = @Backoff(delay = 5000))
-//    @Cacheable(value = "exchangeRatesCache", key = "#currencyCode")
-//    public Map<CurrencyCode, BigDecimal> getExchangeRates(CurrencyCode currencyCode) {
-//        try {
-//            log.info("Retrieving exchange rates for {} currency", currencyCode);
-//            CurrencyExchangeResponse response = this.restClient.get().uri("/v6/latest/{currencyCode}", currencyCode).retrieve().body(CurrencyExchangeResponse.class);
-//            assert response != null;
-//            Map<CurrencyCode, BigDecimal> rates = response.getRates();
-//            // Api on errors returns 200 status with a body but without rates
-//            if (rates==null) {
-//                throw new CurrencyExchangeException(EXCHANGE_UNAVAILABLE_ERROR);
-//            }
-//            return rates;
-//        } catch (Exception e) {
-//            log.error("Failed to retrieve exchange rates: {}",e.getMessage());
-//            throw new CurrencyExchangeException(RETRIEVE_EXCHANGE_RATE_ERROR);
-//        }
-//    }
-//}
